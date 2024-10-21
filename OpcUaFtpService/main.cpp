@@ -11,14 +11,12 @@
 #include "Settings.hpp"
 #include "WriteDataToPLC.hpp"
 
-//Final version
-
 int main()
 {
 	std::mutex Mlock;
 
 	/* Create general program folder */
-		/* Create new local folder if doesn't exist */
+	/* Create new local folder if doesn't exist */
 	if (CreateDirectory(ROOT_PATH, NULL) ||
 		ERROR_ALREADY_EXISTS == GetLastError())
 	{
@@ -47,24 +45,19 @@ int main()
 	DataFromFtpServer.ClearData();
 	DataCurrentyOnPlc.ClearData();
 
-	//this_thread::sleep_for(50000ms);
-
 	/* Create FTP Read Production Thread */
 	std::thread FtpListener(FtpListeningThread, std::ref(DataFromFtpServer), std::ref(Mlock), std::ref(MessageFile));
 
-	/* Endless loop for testing */
-	while (true)
-	/* Detecting changes on input from FTP */
+	/* Endless loop for Detecting changes on input from FTP */
+	while (true) 
 	{
 		Mlock.lock();
 		DetectDataChangesOnFtp(DataFromFtpServer, DataCurrentyOnPlc, MessageFile, PLC);
 		Mlock.unlock();
-
 	}
 
 	/* Wait for end thred jobs */
 	FtpListener.join();
 
 	return 0;
-
 }
